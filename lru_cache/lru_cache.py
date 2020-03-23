@@ -1,3 +1,4 @@
+from doubly_linked_list import DoublyLinkedList #import
 class LRUCache:
     """
     Our LRUCache class keeps track of the max number of nodes it
@@ -7,8 +8,10 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        pass
-
+        self.limit = limit
+        self.size = 0 
+        self.order = DoublyLinkedList()
+        self.storage = dict()
     """
     Retrieves the value associated with the given key. Also
     needs to move the key-value pair to the end of the order
@@ -17,8 +20,12 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
-
+        if key in self.storage: # if key is in dictionary
+            node = self.storage[key] #extract node from storage at the key
+            self.order.move_to_end(node)#move the key to end of the order
+            return node.value[1] #return value of the value of the node
+        else:
+            return None
     """
     Adds the given key-value pair to the cache. The newly-
     added pair should be considered the most-recently used
@@ -30,4 +37,19 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        pass
+        #create a node if key is not found
+        #move node to front if key found
+        #if full remove last node from linked list and disctionary
+        if key in self.storage: # if key is in storage/dict
+            node = self.storage[key] #extract the node from storage
+            node.value= (key, value) #set node to kvp
+            self.order.move_to_end(node) #call the move to end from dll
+            return
+        if self.size == self.limit: #if its same as limit(10)
+            del self.storage[self.order.head.value[0]] #delete the storage at the heads value key
+            self.order.remove_from_head() #remove from head
+            self.size -= 1   #decrement size
+        #if both cases are false
+        self.order.add_to_tail((key, value))
+        self.storage[key] = self.order.tail
+        self.size += 1 #increment size
